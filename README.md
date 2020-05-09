@@ -1,1 +1,1 @@
-# thecup
+# TheCup
