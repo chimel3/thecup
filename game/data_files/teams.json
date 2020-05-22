@@ -1,0 +1,80 @@
+{
+    "teams": [
+    {
+        "l1": [
+            "Chelsea",
+            "Man City",
+            "Man Utd",
+            "Liverpool",
+            "Tottenham",
+            "Arsenal"
+        ],
+        "l2": [
+            "Everton",
+            "Leicester",
+            "Wolves",
+            "Sheff Utd"
+        ],
+        "l3": [
+            "Burnley",
+            "Crystal Palace",
+            "Newcastle",
+            "Southampton",
+            "Brighton",
+            "West Ham",
+            "Watford",
+            "Bournemouth",
+            "Aston Villa",
+            "Norwich"
+        ],
+        "l4": [
+            "Leeds",
+            "West Brom",
+            "Fulham",
+            "Nottm Forest",
+            "Preston",
+            "Bristol City",
+            "Millwall",
+            "Cardiff",
+            "Blackburn",
+            "Swansea",
+            "Derby",
+            "QPR",
+            "Sheff Wed",
+            "Birmingham",
+            "Stoke"
+        ],
+        "l5": [
+            "Coventry",
+            "Oxford",
+            "Portsmouth",
+            "Sunderland",
+            "Ipswich",
+            "Blackpool",
+            "Bristol Rovers",
+            "Lincoln",
+            "Shrewsbury",
+            "Accrington",
+            "MK Dons",
+            "Rochdale",
+            "Wimbledon",
+            "Tranmere"
+        ],
+        "l6": [
+            "Crewe",
+            "Swindon",
+            "Plymouth",
+            "Exeter",
+            "Colchester",
+            "Northampton",
+            "Port Vale",
+            "Salford City",
+            "Forest Green",
+            "Grimsby",
+            "Walsall",
+            "Cambridge",
+            "Oldham",
+            "Stevenage"
+        ]
+    }]
+}
