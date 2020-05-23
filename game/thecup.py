@@ -27,6 +27,7 @@ def new_game():
     - for 64 team, it's 1, 4, 5, 10
     Button for submission that checks right number and then submits these teams details to /start.
     '''
+    pass
 
 @app.route('/start', methods=['POST'])
 def start_game():
@@ -36,6 +37,7 @@ def start_game():
     When finished, read the resulted fixture list and output appropriate html with a "Continue" button that simply
     calls a GET on the next /matchday decorator.
     '''
+    pass
 
 def show_round_fixtures(some details):
     '''
@@ -46,6 +48,7 @@ def show_round_fixtures(some details):
     and allows any other program to query it using REST to get the list.
     Fixtures are worked out at random.
     '''
+    pass
 
 @app.route('/matchday/' defaults={'trigger': None}, methods=['GET'])
 def display_matches():
@@ -60,6 +63,7 @@ def display_matches():
     If timer is 90 then finish game (have to think about extra time or replays).
     Need to make sure the "Continue" button is then displayed.
     '''
+    pass
 
 def process_matches():
     '''
@@ -73,8 +77,8 @@ def process_matches():
     that python can read.
     This then triggers the /matchday code again.
     '''
+    pass
 
 if __name__ == "__main__":
     app.config['TEMPLATES_AUTO_RELOAD'] = True
-    #app.run(port=8181)
-    app.run(debug=True)
+    app.run(port=1966, debug=True)

@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block content %}
+
+    <p><h2>Please select game type to play:</h2></p>
+    <br>
+    <form action="http://127.0.0.1:1966/start" method="post">
+        <div class="radiosection1">
+            <input type="radio" id="elite" name="gametype" value="elite">
+            <label for="elite">Elite Cup</label><br><br>
+            <input type="radio" id="premier" name="gametype" value="premier">
+            <label for="premier">Premier League Cup</label><br><br>
+            <input type="radio" id="short" name="gametype" value="short">
+            <label for="short">Short Cup</label><br><br>
+            <input type="radio" id="full" name="gametype" value="full">
+            <label for="full">Full Cup</label><br><br>
+        </div>
+        <input type="submit" value="Submit">
+    </form>
+    <br><br><br>
+    <div>
+        <table style="border:1px solid black; background-color:rgb(245,245,245); color: grey; padding: 15px">
+            <tbody>
+                <tr>
+                    <th style="color:black">The Elite Cup</th>
+                    <th style="color: black">The Premier League Cup</th>
+                    <th style="color:black">The Short Cup</th>
+                    <th style="color:black">The Full Cup</th>
+                </tr>
+                <tr>
+                    <td style="width: 250px; border: 1px solid black; padding: 15px">The Elite Cup sees 8 of the best Premier League teams go head to head over 3 rounds to see who will  
+                        establish themselves as the creme de la creme and emerge to hold aloft the Elite Cup</td>
+                    <td style="width: 250px; border: 1px solid black; padding: 15px">The Premier League Cup pits all 16 Premier League teams against each other, dukin' it out in a knockout competition 
+                        over 4 rounds to see who will be crowned the champions.</td>
+                    <td style="width: 250px; border: 1px solid black; padding: 15px">The Short Cup sees a mixed league line-up of 32 teams slug it out in a knockout competition to see
+                        who can land one of football's finest trophies.</td>
+                    <td style="width: 250px; border: 1px solid black; padding: 15px">The Full Cup is the one they all want to win. All 64 teams come together to battle it out in a 
+                        knockout competition to see who will end up in football's biggest final and go on to celebrate 
+                        winning the Full Cup in front of their adoring fans!</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+ 
+{% endblock %}
+
