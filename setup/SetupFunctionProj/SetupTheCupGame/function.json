@@ -1,0 +1,42 @@
+{
+  "scriptFile": "setup.py",
+  "bindings": [
+    {
+      "authLevel": "function",
+      "type": "httpTrigger",
+      "direction": "in",
+      "name": "req",
+      "methods": [
+        "get",
+        "post"
+      ]
+    },
+    {
+      "type": "http",
+      "direction": "out",
+      "name": "$return"
+    },
+    {
+      "name": "teamdetails",
+      "type": "table",
+      "tableName": "teams",
+      "partitionKey": "thecupteams",
+      "connection": "AzureWebJobsStorage",
+      "direction": "out"
+    },
+    {
+      "name": "teamfile",
+      "type": "blob",
+      "path": "https://thecupstore.blob.core.windows.net/datafiles/teams.json",
+      "connection": "AzureWebJobsStorage",
+      "direction": "in"
+    },
+    {
+      "name": "valuesfile",
+      "type": "blob",
+      "path": "https://thecupstore.blob.core.windows.net/datafiles/values.json",
+      "connection": "AzureWebJobsStorage",
+      "direction": "in"
+    }
+  ]
+}

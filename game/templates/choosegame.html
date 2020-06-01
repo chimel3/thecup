@@ -3,7 +3,7 @@
 
     <p><h2>Please select game type to play:</h2></p>
     <br>
-    <form action="http://127.0.0.1:1966/start" method="post">
+    <form action="{{ url_for('new_game') }}" method="post">
         <div class="radiosection1">
             <input type="radio" id="elite" name="gametype" value="elite">
             <label for="elite">Elite Cup</label><br><br>
@@ -14,7 +14,7 @@
             <input type="radio" id="full" name="gametype" value="full">
             <label for="full">Full Cup</label><br><br>
         </div>
-        <input type="submit" value="Submit">
+        <input type="submit" value="Submit"/>
     </form>
     <br><br><br>
     <div>

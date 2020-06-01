@@ -1,0 +1,6 @@
+{
+    "config":
+    {
+        "new_game_app_url": "https://setupfunctionapp.azurewebsites.net/api/setupthecupgame?code="
+    }
+}

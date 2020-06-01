@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+
+    <br>
+    <form action="{{ url_for('start_game') }}" method="post">
+        <p><h2>Please select number of teams to control:</h2></p>
+        <div>
+            <input type="radio" id="oneteam" name="controlled" value="1">
+            <label for="oneteam">1</label><br><br>
+            <input type="radio" id="twoteams" name="controlled" value="2">
+            <label for="twoteams">2</label><br><br>
+            <input type="radio" id="fiveteams" name="controlled" value="5">
+            <label for="fiveteams">5</label><br><br>
+            <input type="radio" id="tenteams" name="controlled" value="10">
+            <label for="tenteams">10</label><br><br>
+        </div>
+        <p><h2>Please select your teams:</h2></p>
+        <div>
+            <fieldset>
+                <input type="checkbox" id="team1" name="teams" value="team1">
+                <label for="team1">Chelsea</label>
+                <input type="checkbox" id="team2" name="teams" value="team2">
+                <label for="team2">Arsenal</label>
+                <input type="checkbox" id="team3" name="teams" value="team3">
+                <label for="team3">Norwich</label>
+                <input type="checkbox" id="team4" name="teams" value="team4">
+                <label for="team4">Ipswich</label>
+            </fieldset>
+        </div>
+        <input type="submit" value="Submit"/>
+    </form>
+    <br><br><br>
+     
+{% endblock %}
+

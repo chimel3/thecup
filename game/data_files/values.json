@@ -1,0 +1,45 @@
+{
+    "scores": 
+    {
+        "l1": {
+            "lowscore": 24,
+            "highscore": 29
+        },
+        "l2": {
+            "lowscore": 21,
+            "highscore": 25
+        },
+        "l3": {
+            "lowscore": 19,
+            "highscore": 22
+        },
+        "l4": {
+            "lowscore": 15,
+            "highscore": 20
+        },
+        "l5": {
+            "lowscore": 12,
+            "highscore": 16
+        },
+        "l6": {
+            "lowscore": 10,
+            "highscore": 13
+        }
+    },
+    "keeping": [
+    {
+        "lowscore": 25,
+        "highscore": 100,
+        "keepingscore": 45
+    },
+    {
+        "lowscore": 16,
+        "highscore": 24,
+        "keepingscore": 40    
+    },
+    {
+        "lowscore": 0,
+        "highscore": 15,
+        "keepingscore": 35    
+    }]
+}

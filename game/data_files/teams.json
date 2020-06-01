@@ -1,6 +1,5 @@
 {
-    "teams": [
-    {
+    "teams": {
         "l1": [
             "Chelsea",
             "Man City",
@@ -74,7 +73,8 @@
             "Walsall",
             "Cambridge",
             "Oldham",
-            "Stevenage"
+            "Stevenage",
+            "Macclesfield"
         ]
-    }]
+    }
 }

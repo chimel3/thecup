@@ -1,18 +1,22 @@
+# Import statements for third party modules
 import flask
+import json
+import requests
+
+# Import statements for my modules
+import config
+
 
 app = flask.Flask(__name__)
 
 @app.route('/', methods=['GET'])
 def choose_game():
     '''
-    GET:
-    Allows a user to pick the type of game they want.
-    Show the form with the 4 game choices.
-    Provide them with a button which does the POST to the /new function, sending their choice.
+    Displays the startup screen, asking player to select the type of game they want.
     '''
-    pass
+    return flask.render_template('choosegame.html')
 
-@app.route('/start', methods=['POST'])
+@app.route('/new', methods=['POST'])
 def new_game():
     '''
     POST:
@@ -27,7 +31,12 @@ def new_game():
     - for 64 team, it's 1, 4, 5, 10
     Button for submission that checks right number and then submits these teams details to /start.
     '''
-    pass
+    game_type = flask.request.form['gametype']
+    # Send game_type to the new game app to load team data. Return value holds number of player controlled teams options.
+    result = requests.get(config.get_new_game_app_url + '&gametype=' + game_type)
+    
+    
+    return flask.render_template('chooseteams.html')
 
 @app.route('/start', methods=['POST'])
 def start_game():
@@ -37,9 +46,16 @@ def start_game():
     When finished, read the resulted fixture list and output appropriate html with a "Continue" button that simply
     calls a GET on the next /matchday decorator.
     '''
-    pass
+    #teams = flask.request.form['teams']
+    numcontrol = flask.request.form.get('controlled')
+    testget = flask.request.form.getlist('teams')
+    print(testget)
+    print(numcontrol)
 
-def show_round_fixtures(some details):
+    #print(numcontrol)
+    return " ", 222
+
+def show_round_fixtures(details):
     '''
     This should probably record each match/team order in some way so that other parts of the program can output the 
     html in the right order. Maybe output it to another table.
@@ -50,7 +66,7 @@ def show_round_fixtures(some details):
     '''
     pass
 
-@app.route('/matchday/' defaults={'trigger': None}, methods=['GET'])
+@app.route('/matchday/', defaults={'trigger': None}, methods=['GET'])
 def display_matches():
     '''
     If trigger is None:
