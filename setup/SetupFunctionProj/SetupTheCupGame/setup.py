@@ -4,7 +4,9 @@ import json
 import random
 from ast import literal_eval
 
+
 def setup_team_names(file, configs):
+    '''Updates the configs array with the teams and their names'''
     contents = file.read()   # class 'bytes'
     decoded_contents = literal_eval(contents.decode('utf-8'))  # class 'str'
     json_contents = json.dumps(decoded_contents, indent=4, sort_keys=True)  # class 'str'
@@ -44,7 +46,21 @@ def setup_team_names(file, configs):
     return configs
 
 
+def create_team_list(configs):
+    '''Creates a simple list of the team names for returning to caller at end'''
+    team_names = ""   # initialise as a string
+    team_counter = 0  # to count the number of teams to help decide if a comma is needed to separate each one
+    for config in configs:
+        team_names += config["name"]
+        team_counter += 1
+        if team_counter < len(configs):
+            team_names += ","
+
+    return team_names
+
+
 def setup_team_values(file, configs):
+    '''Updates the configs array with the remaining values'''
     contents = file.read()
     decoded_contents = literal_eval(contents.decode('utf-8'))  # class 'str'
     json_contents = json.dumps(decoded_contents, indent=4, sort_keys=True)  # class 'str'
@@ -84,10 +100,31 @@ def setup_team_values(file, configs):
     return configs
 
 
-def main(req: func.HttpRequest, teamfile: func.InputStream, valuesfile: func.InputStream, teamdetails: func.Out[str]) -> func.HttpResponse:
-    logging.info('Python HTTP trigger function processed a request.')
+def add_teams_to_table(teamstable, configs):
+    '''Adds the teams and values in the configs array to the table'''
+    team_uuid = 0
+    output_array = []
+    for team in configs:
+        team_uuid += 1
+        data = {
+            "PartitionKey": "thecupteams",
+            "RowKey": "t" + str(team_uuid),
+            "Name": team["name"],
+            "Level": team["level"],
+            "Score": team["score"],
+            "Match_Score": team["matchscore"],
+            "Keeper_Score": team["keeperscore"]
+        }
+        output_array.append(data)
+    
+    teamstable.set(json.dumps(output_array))
+    
 
+def main(req: func.HttpRequest, teamfile: func.InputStream, valuesfile: func.InputStream, teamstable: func.Out[str]) -> func.HttpResponse:
+    '''Checks the gametype passed to the function and then sets up the right number of teams accordingly'''
     gametype = req.params.get('gametype')
+    logging.info('Python HTTP trigger. Gametype ' +  gametype)
+
     if not gametype:
         try:
             req_body = req.get_json()
@@ -96,128 +133,114 @@ def main(req: func.HttpRequest, teamfile: func.InputStream, valuesfile: func.Inp
         else:
             gametype = req_body.get('gametype')
 
-    
-    #team_data = teamfile.read()  # class 'bytes'
-    #values_data = valuesfile.read()
-    team_configs = []
+    team_configs = []   # initialise the array to hold the teams' details
 
-    if gametype == "elite":
+    if gametype == "test":
+        # test call. Returns response but does not create anything
+        return func.HttpResponse("1", status_code=200)
+
+    elif gametype == "elite":
         # elite games feature the best 8 teams
-        for each_team in range(0, 6):
+        for _ in range(0, 6):
             current_config = {"level": 1}
             team_configs.append(current_config)
 
-        for each_team in range(0, 2):
+        for _ in range(0, 2):
             current_config = {"level": 2}
             team_configs.append(current_config)
 
         team_configs = setup_team_names(teamfile, team_configs)
+        returned_teams = create_team_list(team_configs)
         team_configs = setup_team_values(valuesfile, team_configs)
+        add_teams_to_table(teamstable, team_configs)
+        return func.HttpResponse(returned_teams, status_code=200)
 
     elif gametype == "premier":
         # premier games feature 16 of the best teams
-        for each_team in range(0, 6):
+        for _ in range(0, 6):
             current_config = {"level": 1}
             team_configs.append(current_config)
 
-        for each_team in range(0, 4):
+        for _ in range(0, 4):
             current_config = {"level": 2}
             team_configs.append(current_config)
 
-        for each_team in range(0, 6):
+        for _ in range(0, 6):
             current_config = {"level": 3}
             team_configs.append(current_config)
 
         team_configs = setup_team_names(teamfile, team_configs)
+        returned_teams = create_team_list(team_configs)
         team_configs = setup_team_values(valuesfile, team_configs)
+        add_teams_to_table(teamstable, team_configs)
+        return func.HttpResponse(returned_teams, status_code=200)
 
     elif gametype == "short":
         # short games feature 32 mixed ability teams
-        for each_team in range(0, 3):
+        for _ in range(0, 3):
             current_config = {"level": 1}
             team_configs.append(current_config)
 
-        for each_team in range(0, 2):
+        for _ in range(0, 2):
             current_config = {"level": 2}
             team_configs.append(current_config)
 
-        for each_team in range(0, 5):
+        for _ in range(0, 5):
             current_config = {"level": 3}
             team_configs.append(current_config)
 
-        for each_team in range(0, 8):
+        for _ in range(0, 8):
             current_config = {"level": 4}
             team_configs.append(current_config)
 
-        for each_team in range(0, 7):
+        for _ in range(0, 7):
             current_config = {"level": 5}
             team_configs.append(current_config)
 
-        for each_team in range(0, 7):
+        for _ in range(0, 7):
             current_config = {"level": 6}
             team_configs.append(current_config)
 
         team_configs = setup_team_names(teamfile, team_configs)
+        returned_teams = create_team_list(team_configs)
         team_configs = setup_team_values(valuesfile, team_configs)
+        add_teams_to_table(teamstable, team_configs)
+        return func.HttpResponse(returned_teams, status_code=200)
 
     elif gametype == "full":
         # full games feature all 64 teams
-        for each_team in range(0, 6):
+        for _ in range(0, 6):
             current_config = {"level": 1}
             team_configs.append(current_config)
 
-        for each_team in range(0, 4):
+        for _ in range(0, 4):
             current_config = {"level": 2}
             team_configs.append(current_config)
 
-        for each_team in range(0, 10):
+        for _ in range(0, 10):
             current_config = {"level": 3}
             team_configs.append(current_config)
 
-        for each_team in range(0, 15):
+        for _ in range(0, 15):
             current_config = {"level": 4}
             team_configs.append(current_config)
 
-        for each_team in range(0, 14):
+        for _ in range(0, 14):
             current_config = {"level": 5}
             team_configs.append(current_config)
 
-        for each_team in range(0, 15):
+        for _ in range(0, 15):
             current_config = {"level": 6}
             team_configs.append(current_config)
 
         team_configs = setup_team_names(teamfile, team_configs)
+        returned_teams = create_team_list(team_configs)
         team_configs = setup_team_values(valuesfile, team_configs)
+        add_teams_to_table(teamstable, team_configs)
+        return func.HttpResponse(returned_teams, status_code=200)
 
-        ##team_data = teamfile.read()  # class 'bytes'
-        #jsondata = json.loads(team_data)
-        ##outputdatastr = literal_eval(team_data.decode('utf-8'))  # class 'str' - convert to string
-        #outputdataf = json.dumps(outputdatastr)   # class 'str'
-        #outputdatad = json.loads(outputdatastr)
-        ##outputdataf = json.dumps(outputdatastr, indent=4, sort_keys=True)  # class 'str'
-        #output1 = outputdatastr['teams']['l1']
-        ##t1 = json.loads(outputdataf)  # class 'dict
-        ##t2 = t1['teams']['l1']  # class 'dict'
-        
-
-        return func.HttpResponse(str(t2))
-
-        '''
-        data = {
-            "PartitionKey": "thecupteams",
-            "RowKey": "T3",
-            "Name": "Arsenal",
-            "Level": "l1",
-            "Score": 0,
-            "Match_Score": 0,
-            "Keeper_Score": 0
-        }
-        teamdetails.set(json.dumps(data))
-        return func.HttpResponse(f"Hello {gametype}!")
-        '''
     else:
         return func.HttpResponse(
-             "Please pass a name on the query string or in the request body",
+             "Invalid gametype",
              status_code=400
         )
-

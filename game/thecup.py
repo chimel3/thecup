@@ -11,10 +11,9 @@ app = flask.Flask(__name__)
 
 @app.route('/', methods=['GET'])
 def choose_game():
-    '''
-    Displays the startup screen, asking player to select the type of game they want.
-    '''
+    '''Displays the startup screen, asking player to select the type of game they want'''
     return flask.render_template('choosegame.html')
+
 
 @app.route('/new', methods=['POST'])
 def new_game():
@@ -32,11 +31,21 @@ def new_game():
     Button for submission that checks right number and then submits these teams details to /start.
     '''
     game_type = flask.request.form['gametype']
-    # Send game_type to the new game app to load team data. Return value holds number of player controlled teams options.
-    result = requests.get(config.get_new_game_app_url + '&gametype=' + game_type)
-    
-    
-    return flask.render_template('chooseteams.html')
+    # Send game_type to the new game app to load team data. Return value holds teams created, comma delimited
+    func_resp = requests.get(config.setup_game_url + '&gametype=' + game_type)
+    #teams = func_resp.text.split(",")
+    # Set number of team choices player can make depending on game_type
+    if game_type == "premier":
+        num_team_choices = [1,3]
+    elif game_type == "short":
+        num_team_choices = [1,3,5]
+    elif game_type == "full":
+        num_team_choices = [1,3,5,10]
+    else:
+        num_team_choices = [1]    # assumes elite but could be some kind of test
+
+    # teams should have been passed back in ID order - assuming this is the case here.
+    return flask.render_template('chooseteams.html', choices = num_team_choices, teams = func_resp.text.split(","))
 
 @app.route('/start', methods=['POST'])
 def start_game():
