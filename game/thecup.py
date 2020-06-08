@@ -36,13 +36,13 @@ def new_game():
     #teams = func_resp.text.split(",")
     # Set number of team choices player can make depending on game_type
     if game_type == "premier":
-        num_team_choices = [1,3]
+        num_team_choices = ["1","3"]
     elif game_type == "short":
-        num_team_choices = [1,3,5]
+        num_team_choices = ["1","3","5"]
     elif game_type == "full":
-        num_team_choices = [1,3,5,10]
+        num_team_choices = ["1","3","5","10"]
     else:
-        num_team_choices = [1]    # assumes elite but could be some kind of test
+        num_team_choices = ["1"]    # assumes elite but could be some kind of test
 
     # teams should have been passed back in ID order - assuming this is the case here.
     return flask.render_template('chooseteams.html', choices = num_team_choices, teams = func_resp.text.split(","))

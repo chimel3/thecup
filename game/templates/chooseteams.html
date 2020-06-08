@@ -6,16 +6,16 @@
         <p><h2>Please select number of teams to control:</h2></p>
         <div>
             {% for choice in choices %}
-                <input type="radio" id={{choice + str(loop.index)}} name="controlled" value={{choice}}>
-                <label for={{choice + str(loop.index)}}>{{choice}}</label><br><br>
+                <input type="radio" name="controlled" value={{choice}}>
+                <label for={{choice}}>{{choice}}</label><br><br>
             {% endfor %}
         </div>
         <p><h2>Please select your teams:</h2></p>
         <div>
             <fieldset>
                 {% for team in teams %}
-                    <input type="checkbox" id={{team + str(loop.index)}} name="teams" value={{team}}>
-                    <label for={{team + str(loop.index)}}>{{team}}</label>
+                    <input type="checkbox" name="teams" value={{team}}>
+                    <label for={{team}}>{{team}}</label>
                 {% endfor %}
             </fieldset>
         </div>
