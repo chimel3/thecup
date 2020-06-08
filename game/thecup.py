@@ -5,6 +5,7 @@ import requests
 
 # Import statements for my modules
 import config
+import classes.gamestate
 
 
 app = flask.Flask(__name__)
@@ -30,22 +31,26 @@ def new_game():
     - for 64 team, it's 1, 4, 5, 10
     Button for submission that checks right number and then submits these teams details to /start.
     '''
-    game_type = flask.request.form['gametype']
+    global game_state
+    game_state = classes.gamestate.Gamestate(flask.request.form['gametype'])
     # Send game_type to the new game app to load team data. Return value holds teams created, comma delimited
-    func_resp = requests.get(config.setup_game_url + '&gametype=' + game_type)
-    #teams = func_resp.text.split(",")
+    func_resp = requests.get(config.setup_game_url + '&gametype=' + game_state.get_gametype())
     # Set number of team choices player can make depending on game_type
-    if game_type == "premier":
-        num_team_choices = ["1","3"]
-    elif game_type == "short":
-        num_team_choices = ["1","3","5"]
-    elif game_type == "full":
-        num_team_choices = ["1","3","5","10"]
+    if game_state.get_gametype() == "premier":
+        game_state.set_num_of_team_choices(["1","3"])
+    elif game_state.get_gametype() == "short":
+        game_state.set_num_of_team_choices(["1","3","5"])
+    elif game_state.get_gametype() == "full":
+        game_state.set_num_of_team_choices(["1","3","5","10"])
     else:
-        num_team_choices = ["1"]    # assumes elite but could be some kind of test
+        game_state.set_num_of_team_choices(["1"])    # assumes elite but could be some kind of test
+
+    # Load the teams in play into game_state
+    game_state.set_gameteams(func_resp.text.split(","))
 
     # teams should have been passed back in ID order - assuming this is the case here.
-    return flask.render_template('chooseteams.html', choices = num_team_choices, teams = func_resp.text.split(","))
+    return flask.render_template('chooseteams.html', choices = game_state.get_num_of_team_choices(), teams = game_state.get_gameteams(), usermsg = "")
+
 
 @app.route('/start', methods=['POST'])
 def start_game():
@@ -58,9 +63,13 @@ def start_game():
     #teams = flask.request.form['teams']
     numcontrol = flask.request.form.get('controlled')
     testget = flask.request.form.getlist('teams')
-    print(testget)
-    print(numcontrol)
 
+    if numcontrol is not None:
+        if len(testget) != int(numcontrol):
+            return flask.render_template('chooseteams.html', choices = game_state.get_num_of_team_choices(), teams = game_state.get_gameteams(), usermsg = "Please select the correct number of teams")
+    else:
+        return flask.render_template('chooseteams.html', choices = game_state.get_num_of_team_choices(), teams = game_state.get_gameteams(), usermsg = "Please select the number of teams to control")
+    
     #print(numcontrol)
     return " ", 222
 

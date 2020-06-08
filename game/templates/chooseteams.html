@@ -1,24 +1,35 @@
 {% extends "base.html" %}
 {% block content %}
-
+    {% if usermsg != "" %}
+        <div class="alert">
+            <strong>Error!</strong> {{usermsg}}
+        </div>
+    {% endif %}
     <br>
     <form action="{{ url_for('start_game') }}" method="post">
         <p><h2>Please select number of teams to control:</h2></p>
-        <div>
-            {% for choice in choices %}
-                <input type="radio" name="controlled" value={{choice}}>
-                <label for={{choice}}>{{choice}}</label><br><br>
-            {% endfor %}
-        </div>
-        <p><h2>Please select your teams:</h2></p>
-        <div>
-            <fieldset>
-                {% for team in teams %}
-                    <input type="checkbox" name="teams" value={{team}}>
-                    <label for={{team}}>{{team}}</label>
+        <fieldset class="hidefieldsetborder">
+            <div>
+                {% for choice in choices %}
+                    <li style="list-style: none;">
+                        <input type="radio" name="controlled" value={{choice}}>
+                        <label for={{choice}}>{{choice}}</label><br><br>
+                    </li>
                 {% endfor %}
-            </fieldset>
-        </div>
+            </div>
+        </fieldset>
+        <p><h2>Please select your teams:</h2></p>       
+        <fieldset class="hidefieldsetborder">
+            <div class="listteams">
+                {% for team in teams %}
+                    <li>
+                        <input type="checkbox" name="teams" value={{team}}>
+                        <label for={{team}}>{{team}}</label>
+                    </li>
+                {% endfor %}
+            </div>
+        </fieldset>
+        <br><br>
         <input type="submit" value="Submit"/>
     </form>
     <br><br><br>
