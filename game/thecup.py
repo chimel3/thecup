@@ -60,17 +60,23 @@ def start_game():
     When finished, read the resulted fixture list and output appropriate html with a "Continue" button that simply
     calls a GET on the next /matchday decorator.
     '''
-    #teams = flask.request.form['teams']
-    numcontrol = flask.request.form.get('controlled')
-    testget = flask.request.form.getlist('teams')
+    # temporarily store the user choices to check that they are valid.
+    selected_controlled = flask.request.form.get('controlled')
+    selected_teams = flask.request.form.getlist('teams')
 
-    if numcontrol is not None:
-        if len(testget) != int(numcontrol):
+    if selected_controlled is not None:
+        if len(selected_teams) != int(selected_controlled):
             return flask.render_template('chooseteams.html', choices = game_state.get_num_of_team_choices(), teams = game_state.get_gameteams(), usermsg = "Please select the correct number of teams")
     else:
         return flask.render_template('chooseteams.html', choices = game_state.get_num_of_team_choices(), teams = game_state.get_gameteams(), usermsg = "Please select the number of teams to control")
     
-    #print(numcontrol)
+    # update the Teams table to record which teams are player controlled
+    post_headers = {'Content-Type': 'application/json', 'Accept':'application/json'}
+    print(selected_teams)
+    print(config.teams_controlled_update_url)
+    func_resp = requests.post(config.teams_controlled_update_url, data=json.dumps(selected_teams), headers=post_headers)
+    print(func_resp.status_code)
+    print(func_resp.text)
     return " ", 222
 
 def show_round_fixtures(details):
