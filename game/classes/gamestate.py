@@ -18,6 +18,7 @@ class Gamestate():
 
     def set_gameteams(self, teams):
         for team in teams:
+            #print("team set in gamestate: " + team)
             self.gameteams.append(team)
 
     def get_gameteams(self):

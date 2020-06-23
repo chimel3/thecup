@@ -72,11 +72,7 @@ def start_game():
     
     # update the Teams table to record which teams are player controlled
     post_headers = {'Content-Type': 'application/json', 'Accept':'application/json'}
-    print(selected_teams)
-    print(config.teams_controlled_update_url)
     func_resp = requests.post(config.teams_controlled_update_url, data=json.dumps(selected_teams), headers=post_headers)
-    print(func_resp.status_code)
-    print(func_resp.text)
     return " ", 222
 
 def show_round_fixtures(details):
