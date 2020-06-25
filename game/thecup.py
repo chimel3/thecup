@@ -2,6 +2,7 @@
 import flask
 import json
 import requests
+import sys
 
 # Import statements for my modules
 import config
@@ -73,6 +74,18 @@ def start_game():
     # update the Teams table to record which teams are player controlled
     post_headers = {'Content-Type': 'application/json', 'Accept':'application/json'}
     func_resp = requests.post(config.teams_controlled_update_url, data=json.dumps(selected_teams), headers=post_headers)
+    if func_resp.status_code != 200:
+        print("Error! Exiting")   # this needs some serious work to make it better
+        sys.exit()
+
+    # Get the fixture list and enter it into the gamestate object.
+    func_resp = requests.post(config.fixture_list_url, data=json.dumps(game_state.get_gameteams()), headers=post_headers)
+    if func_resp.status_code !=200:
+        print("Error! Exiting")
+        sys.exit()
+    else:
+       game_state.set_fixtures(func_resp.text)
+    
     return " ", 222
 
 def show_round_fixtures(details):
