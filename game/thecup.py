@@ -86,6 +86,14 @@ def start_game():
     else:
        game_state.set_fixtures(func_resp.text)
     
+    # Start the match engine
+    engine_response = requests.post(config.match_engine_url + 'start', data=json.dumps(game_state.get_fixtures()), headers=post_headers)
+    if engine_response.status_code !=200:
+        print("Error! Exiting")
+        sys.exit()
+    else:
+        print("match engine started")
+
     return " ", 222
 
 def show_round_fixtures(details):

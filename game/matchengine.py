@@ -19,6 +19,7 @@ def start_round():
 
     table_service = TableService(account_name='thecupstore', account_key=data_access_key.value)
 
+    # Create the query string. Expects a list of matches, each of which is list containing 2 teams.
     query_string = ""
     for match in matches:
         for team in match:
@@ -26,7 +27,7 @@ def start_round():
 
     # Remove trailing ' or '
     query_string = query_string[:-4]
-    
+
     global teams
     teams = table_service.query_entities('Teams', filter=query_string)
     return '', 200
