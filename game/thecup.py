@@ -94,6 +94,9 @@ def start_game():
     else:
         print("match engine started")
 
+    game_state.update_matches()
+    match_teams, match_scores, timer = game_state.get_matches()
+    
     return " ", 222
 
 def show_round_fixtures(details):

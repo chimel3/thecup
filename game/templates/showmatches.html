@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+    <meta http-equiv="refresh" content="1">
+    <form action="{{ url_for('start_game') }}" method="post">
+    <p><h2>Round: {{roundnumber}}</h2></p>       
+    <table>
+    <tbody>
+    {% for i in teams %}
+        {%- if loop.index is even %}{% continue %}{% endif %}
+        {% set hometeam = teams[loop.index0] %}
+        {% set homescore = scores[loop.index0] %}
+        {% set awayteam = teams[loop.index] %}
+        {% set awayscore = scores[loop.index] %}
+        <tr>
+            <td style="width: 120px;">{{hometeam}}</td>
+            <td>{{homescore}}</td>
+            <td>v</td>
+            <td style="width: 40px;">{{awayscore}}</td>
+            <td style="width: 120px;">{{awayteam}}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+    </table>
+    <br>
+    <input type="submit" value="Submit"/>
+    </form>
+     
+{% endblock %}
+

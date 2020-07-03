@@ -32,5 +32,10 @@ def start_round():
     teams = table_service.query_entities('Teams', filter=query_string)
     return '', 200
 
+
+@app.route('/play', methods=['GET'])
+def play_round():
+    pass
+
 if __name__ == "__main__":
     app.run(port=1955, debug=True)

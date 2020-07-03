@@ -64,5 +64,24 @@ class Gamestate():
     def get_single_fixture(self, match_number):
         return self.fixtures[match_number - 1]
 
-    def get_round():
+    def get_round(self):
         return self.tournament_round
+
+    def update_matches(self, teamlist=None, timer=None):
+        ''' Updates the scores for the matches or sets them up if no teamlist parameter is passed in '''
+        if teamlist is not None:
+            # Find the team name in match_teams and update the equivalent item number in the match_scores list.
+            for team_name in teamlist:
+                self.match_scores[self.match_teams.index(team_name)] += 1
+            self.timer = timer
+        else:
+            # Convert the fixtures list of lists to a flat list for use in the output html in the matches
+            self.match_teams = [item for sublist in self.get_fixtures() for item in sublist]
+            # Create the scores list with the same number of elements
+            self.match_scores = []
+            for _ in range(0, len(self.match_teams)):
+                self.match_scores.append(0)
+            self.timer = 0
+
+    def get_matches(self):
+        return self.match_teams, self.match_scores, self.timer
