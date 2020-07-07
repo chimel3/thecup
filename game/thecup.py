@@ -75,13 +75,13 @@ def start_game():
     post_headers = {'Content-Type': 'application/json', 'Accept':'application/json'}
     func_resp = requests.post(config.teams_controlled_update_url, data=json.dumps(selected_teams), headers=post_headers)
     if func_resp.status_code != 200:
-        print("Error! Exiting")   # this needs some serious work to make it better
+        print("Error updating player controlled! Exiting: " + str(func_resp.status_code))   # this needs some serious work to make it better
         sys.exit()
 
     # Get the fixture list and enter it into the gamestate object.
     func_resp = requests.post(config.fixture_list_url, data=json.dumps(game_state.get_gameteams()), headers=post_headers)
     if func_resp.status_code !=200:
-        print("Error! Exiting")
+        print("Error getting fixture list! Exiting: " + str(func_resp.status_code))
         sys.exit()
     else:
        game_state.set_fixtures(func_resp.text)
@@ -89,13 +89,14 @@ def start_game():
     # Start the match engine
     engine_response = requests.post(config.match_engine_url + 'start', data=json.dumps(game_state.get_fixtures()), headers=post_headers)
     if engine_response.status_code !=200:
-        print("Error! Exiting")
+        print("Error starting matchengine! Exiting: " + str(engine_response.status_code))
         sys.exit()
     else:
         print("match engine started")
 
     game_state.update_matches()
     match_teams, match_scores, timer = game_state.get_matches()
+    
     
     return " ", 222
 
