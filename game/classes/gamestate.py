@@ -81,6 +81,9 @@ class Gamestate():
             for team_name in teamlist:
                 self.match_scores[self.match_teams.index(team_name)] += 1
             self.timer = timer
+            if timer == 90:
+                self.match_finished = True
+            
         else:
             # Convert the fixtures list of lists to a flat list for use in the output html in the matches
             self.match_teams = [item for sublist in self.get_fixtures() for item in sublist]
@@ -89,6 +92,7 @@ class Gamestate():
             for _ in range(0, len(self.match_teams)):
                 self.match_scores.append(0)
             self.timer = 0
+            self.match_finished = False
 
     def get_matches(self):
         ''' Returns 2 single dimension lists in fixture list order '''
@@ -109,3 +113,6 @@ class Gamestate():
 
     def round_has_started(self):
         return self.round_started
+
+    def match_is_finished(self):
+        return self.match_finished

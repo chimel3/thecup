@@ -148,7 +148,7 @@ def main(trigger: func.QueueMessage):
             time.sleep(0.05)            
 
         match_time += 1
-        
+    logging.info('matchengine complete')
 
 
 

@@ -162,8 +162,8 @@ def play_round():
         
     match_teams, match_scores, timer = game_state.get_matches()
     print(time.time())
-    print("timer: " + str(timer))    
-    return flask.render_template('showmatches.html', teams = match_teams, scores = match_scores, timer = timer, roundnumber = game_state.get_round())
+    print("timer: " + str(timer))
+    return flask.render_template('showmatches.html', teams = match_teams, scores = match_scores, timer = timer, roundnumber = game_state.get_round(), roundover = game_state.match_is_finished())
 
 
 

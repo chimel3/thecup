@@ -23,7 +23,9 @@
     </tbody>
     </table>
     <br>
-    <input type="submit" value="Submit"/>
+    {% if roundover %}
+        <input type="submit" value="Continue"/>
+    {% endif %}
     </form>
      
 {% endblock %}
