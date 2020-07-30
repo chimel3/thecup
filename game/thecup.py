@@ -3,6 +3,11 @@ import flask
 import json
 import requests
 import sys
+import os
+import time
+from azure.keyvault.secrets import SecretClient
+from azure.identity import DefaultAzureCredential
+from azure.storage.queue import QueueServiceClient, QueueClient, QueueMessage, TextBase64EncodePolicy, TextBase64DecodePolicy
 
 # Import statements for my modules
 import config
@@ -10,6 +15,33 @@ import classes.gamestate
 
 
 app = flask.Flask(__name__)
+
+
+def create_queue(queue_name, clear_queue):
+    credential = DefaultAzureCredential()
+    account_url = "https://thecupstore.queue.core.windows.net/"
+    queueservice = QueueServiceClient(account_url=account_url, credential=credential)
+    try:
+        queueservice.create_queue(name=queue_name)
+    except:
+        # Check that exists and clear if chosen
+        if clear_queue:
+            for queue in queueservice.list_queues():
+                if queue["name"] == queue_name:
+                    queue_client = get_queue(queue_name)
+                    queue_client.clear_messages()
+                    break
+
+
+def get_queue(queue_name):
+    keyVaultName = os.environ["KEY_VAULT_NAME"]
+    keyVault_URI = "https://" + keyVaultName + ".vault.azure.net"
+    credential = DefaultAzureCredential()
+    client = SecretClient(vault_url=keyVault_URI, credential=credential)
+    data_access_key = client.get_secret("thecupstore-key")
+    account_url = "https://thecupstore.queue.core.windows.net/"
+    return QueueClient(account_url=account_url, queue_name=queue_name, credential=data_access_key.value, message_encode_policy=TextBase64EncodePolicy(), message_decode_policy=TextBase64DecodePolicy())
+
 
 @app.route('/', methods=['GET'])
 def choose_game():
@@ -19,19 +51,6 @@ def choose_game():
 
 @app.route('/new', methods=['POST'])
 def new_game():
-    '''
-    POST:
-    Depending on the choice, create the storage table.
-    Create the right teams from the teams.json.
-    Load teams into table.
-    Create some information in the table about how many rounds/matches there are.
-    Show form, asking them how many teams they want to control, using a checkbox next to each team:
-    - for 8 team competition, it's 1
-    - for 16 team, it's 1, 2 or 3
-    - for 32 team, it's 1, 3, 5
-    - for 64 team, it's 1, 4, 5, 10
-    Button for submission that checks right number and then submits these teams details to /start.
-    '''
     global game_state
     game_state = classes.gamestate.Gamestate(flask.request.form['gametype'])
     # Send game_type to the new game app to load team data. Return value holds teams created, comma delimited
@@ -85,31 +104,68 @@ def start_game():
         sys.exit()
     else:
        game_state.set_fixtures(func_resp.text)
-    
-    # Start the match engine
-    engine_response = requests.post(config.match_engine_url + 'start', data=json.dumps(game_state.get_fixtures()), headers=post_headers)
-    if engine_response.status_code !=200:
-        print("Error starting matchengine! Exiting: " + str(engine_response.status_code))
-        sys.exit()
-    else:
-        print("match engine started")
 
+    # Update the gamestate object ready to play the round
     game_state.update_matches()
-    match_teams, match_scores, timer = game_state.get_matches()
     
-    
-    return " ", 222
+    # Create the queues for the matches to run
+    create_queue(config.MATCH_TRIGGER_QUEUE, True)
+    create_queue(config.GOAL_QUEUE, True)
 
-def show_round_fixtures(details):
+    # Store the queue object in gamestate to avoid having to continually get it as that takes about 1 second
+    game_state.set_goalqueue(get_queue(config.GOAL_QUEUE))
+
+    match_teams, match_scores, timer = game_state.get_matches()
+    return flask.render_template('showfixtures.html', teams = match_teams, roundnumber = game_state.get_round())
+    
+
+#@app.route('/play', defaults={'tick': None}, methods=['GET'])
+#@app.route('/play/<string:tick>', methods=['GET'])
+#def play_round(tick):
+@app.route('/play', methods=['GET'])
+def play_round():
     '''
-    This should probably record each match/team order in some way so that other parts of the program can output the 
-    html in the right order. Maybe output it to another table.
-    The other way to do it is to output that as json document.
-    This should probably run as a function instead, or a container that basically keeps the fixture list in memory as json
-    and allows any other program to query it using REST to get the list.
-    Fixtures are worked out at random.
+    This is initially called from the showfixtures page without update (update is None).
+    Subsequent calls are made by the matchengine with an update URL filter.
     '''
-    pass
+    print("start of play_round")
+    print("1:   " + str(time.time()))
+    if game_state.round_has_started():
+        # Check for new goal or timer messages
+        print("subsequent lap")
+        goal_queue = game_state.get_goalqueue()
+        if goal_queue.get_queue_properties().approximate_message_count > 0:
+            print("2:   " + str(time.time()))
+            messages = goal_queue.receive_messages()
+            print("3:   " + str(time.time()))
+            goals_list = []
+            for msg in messages:
+                try:
+                    int(msg.content)
+                except ValueError:
+                    goals_list.append(msg.content)
+                else:
+                    timer = int(msg.content)
+                print("4:   " + str(time.time()))
+                print("message is: " + str(msg.content))
+            print("5:   " + str(time.time()))
+            goal_queue.clear_messages()
+            print("6:   " + str(time.time()))
+            game_state.update_matches(teamlist=goals_list, timer=timer)
+            print("7:   " + str(time.time()))
+    else:
+        # start the round and trigger the match engine
+        print("initial lap")
+        match_queue = get_queue(config.MATCH_TRIGGER_QUEUE)
+        match_queue.send_message(game_state.get_fixturestextstring())
+        game_state.round_start()
+        
+    match_teams, match_scores, timer = game_state.get_matches()
+    print(time.time())
+    print("timer: " + str(timer))    
+    return flask.render_template('showmatches.html', teams = match_teams, scores = match_scores, timer = timer, roundnumber = game_state.get_round())
+
+
 
 @app.route('/matchday/', defaults={'trigger': None}, methods=['GET'])
 def display_matches():
@@ -142,4 +198,5 @@ def process_matches():
 
 if __name__ == "__main__":
     app.config['TEMPLATES_AUTO_RELOAD'] = True
+    app.jinja_env.add_extension('jinja2.ext.loopcontrols')
     app.run(port=1966, debug=True)

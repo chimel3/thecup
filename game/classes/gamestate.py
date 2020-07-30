@@ -6,6 +6,7 @@ class Gamestate():
         self.gametype = gametype
         self.choices = []
         self.gameteams = []
+        self.round_started = False
 
     def get_gametype(self):
         return self.gametype
@@ -25,6 +26,7 @@ class Gamestate():
         return self.gameteams
 
     def set_fixtures(self, teams):
+        self.fixturetextstring = teams
         working_list = teams.split(",")
         self.fixtures = []
         current_match = []
@@ -61,6 +63,9 @@ class Gamestate():
     def get_fixtures(self):
         return self.fixtures
 
+    def get_fixturestextstring(self):
+        return self.fixturetextstring
+
     def get_single_fixture(self, match_number):
         return self.fixtures[match_number - 1]
 
@@ -68,7 +73,9 @@ class Gamestate():
         return self.tournament_round
 
     def update_matches(self, teamlist=None, timer=None):
-        ''' Updates the scores for the matches or sets them up if no teamlist parameter is passed in '''
+        ''' Updates the scores for the matches or sets them up if no teamlist parameter is passed in.
+        The teamlist parameter is a single dimension list in fixture list order
+        '''
         if teamlist is not None:
             # Find the team name in match_teams and update the equivalent item number in the match_scores list.
             for team_name in teamlist:
@@ -84,4 +91,21 @@ class Gamestate():
             self.timer = 0
 
     def get_matches(self):
+        ''' Returns 2 single dimension lists in fixture list order '''
         return self.match_teams, self.match_scores, self.timer
+
+    def set_goalqueue(self, queueclient):
+        '''Stores the queueclient object '''
+        self.goalqueue = queueclient
+
+    def get_goalqueue(self):
+        return self.goalqueue
+
+    def round_start(self):
+        self.round_started = True
+
+    def round_stop(self):
+        self.round_started = False
+
+    def round_has_started(self):
+        return self.round_started

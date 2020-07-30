@@ -1,10 +1,12 @@
 import flask
+import requests
 import os
 import time
 import random
 from azure.cosmosdb.table.tableservice import TableService
 from azure.keyvault.secrets import SecretClient
 from azure.identity import DefaultAzureCredential
+from azure.storage.queue import QueueServiceClient, QueueClient, QueueMessage
 
 import classes.round
 
@@ -18,7 +20,7 @@ def goal_chance(target_score):
     for dice in range(NUM_DICE):
         total_score += random.randint(1, 10)
 
-    print("target score: " + target_score + "   total_score:" + total_score)
+    print("target score: " + str(target_score) + "   total_score:" + str(total_score))
     if total_score >= target_score:
         return True
     else:
@@ -56,25 +58,38 @@ def start_round():
     query_string = query_string[:-4]
 
     team_stats = table_service.query_entities('Teams', filter=query_string)
-    global match_details
-    match_details = classes.round.Round(matches, team_stats)
+    global current_round
+    current_round = classes.round.Round(matches, team_stats)
+
+    # Create the message queue for sending goal updates
+    queue_name = "goalqueue"
+    account_url = "https://thecupstore.queue.core.windows.net/"
+    queueservice = QueueServiceClient(account_url=account_url, credential=credential)
+    queueservice.create_queue(name=queue_name)
+    global queueclient
+    queueclient = QueueClient(account_url=account_url, queue_name=queue_name, credential=data_access_key.value)
     return '', 200
 
 
 @app.route('/play', methods=['GET'])
 def play_round():
+    
+    CALLBACK_URL = "http://localhost:1966/play"
+    MATCH_LENGTH = 20
     match_time = 0
-    while match_time < 5:
+    matches = current_round.get_matches()
+    while match_time < MATCH_LENGTH:
         start_time = time.time()
-        for match in match_details:
+        for match in matches:
             for team in match:
                 if goal_chance(team["goal_chance"]):
                     # goal chance created. Check if saved.
                     if goal_saved(team["keeping"]):
-                        print("saved: " + team["Name"])
+                        print("saved: " + team["name"])
                     else:
                         # goal scored
-                        print("goal: " + team["Name"])
+                        queueclient.send_message(team["name"])
+                        print("goal: " + team["name"])
 
         # Check if a second has passed. Otherwise wait until it has
         while time.time() < start_time + 1:
@@ -82,8 +97,11 @@ def play_round():
             time.sleep(0.05)
 
         match_time += 1
+        print("writing timer to queue" + str(match_time))
+        queueclient.send_message(match_time)
+        cup_response = requests.get(CALLBACK_URL)
 
-        
+    return '', 200        
 
 
 if __name__ == "__main__":

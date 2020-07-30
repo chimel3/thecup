@@ -1,0 +1,12 @@
+{
+  "scriptFile": "matchengine.py",
+  "bindings": [
+    {
+      "name": "trigger",
+      "type": "queueTrigger",
+      "direction": "in",
+      "queueName": "matchtrigger",
+      "connection": "AzureWebJobsStorage"
+    }
+  ]
+}
