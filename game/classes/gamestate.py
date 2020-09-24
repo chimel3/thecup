@@ -7,6 +7,7 @@ class Gamestate():
         self.clubs = []
         self.round_started = False
         self.winningteams = []
+        self.match_message = ""
 
 
     ### General game settings ###

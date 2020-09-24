@@ -230,13 +230,11 @@ def play_round():
                     print("timer: " + str(timer))
             goal_queue.clear_messages()
             game_state.update_matches(teamlist=goals_list, timer=timer)
-        game_state.set_match_message("")
         screen_url = "play_round"
     
     elif game_state.get_round_status() == "notstarted":
         print("notstarted")
         game_state.set_engine_message("normal")
-        game_state.set_match_message("Ready")
         game_state.set_round_status("ready")
         screen_url = "play_round"
 
@@ -246,7 +244,6 @@ def play_round():
         match_queue.send_message(game_state.get_engine_message() + ',' + game_state.get_fixturestextstring())
         print("fixturetextstring: " + game_state.get_fixturestextstring())
         game_state.set_round_status("inplay")
-        game_state.set_match_message("")
         screen_url = "play_round"
 
     elif game_state.get_round_status() == "paused":
@@ -259,12 +256,12 @@ def play_round():
                 game_state.set_match_message("Extra Time")
             elif game_state.get_timer() == 120:
                 # Check to see if we have already had penalties and are in sudden death, or not
-                if game_state.get_match_message() == "":
+                if game_state.get_match_message() == "Extra Time":
                     game_state.set_engine_message("penalties")
-                    game_state.set_match_message("Penalties!")
+                    game_state.set_match_message("Penalties! Each team will now take 5 penalties each.")
                 else:
                     game_state.set_engine_message("suddendeath")
-                    game_state.set_match_message("Sudden death penalties!")
+                    game_state.set_match_message("Sudden death penalties! Each team takes 1 penalty each round until there is a winner.")
             game_state.set_round_status("ready")
             screen_url = "play_round"
         else:
