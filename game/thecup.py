@@ -248,6 +248,12 @@ def play_round():
 
     elif game_state.get_round_status() == "paused":
         print("paused")
+        game_state.set_match_message("Period finished. Press Continue when ready.")
+        game_state.set_round_status("evaluate")
+        screen_url = "play_round"
+
+    elif game_state.get_round_status() == "evaluate":
+        print("evaluate")
         if matches_in_progress():
             #print("matches are in progress")
             if game_state.get_timer() == 90:
@@ -256,7 +262,7 @@ def play_round():
                 game_state.set_match_message("Extra Time")
             elif game_state.get_timer() == 120:
                 # Check to see if we have already had penalties and are in sudden death, or not
-                if game_state.get_match_message() == "Extra Time":
+                if game_state.get_engine_message() == "extra":
                     game_state.set_engine_message("penalties")
                     game_state.set_match_message("Penalties! Each team will now take 5 penalties each.")
                 else:

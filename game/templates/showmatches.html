@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
-    {% if status != "ready" and status != "finished" %}
+    {% if status != "evaluate" and status != "finished" %}
         <meta http-equiv="refresh" content="1">
     {% endif %}
     
@@ -36,7 +36,7 @@
     <br>
     <br>
 
-    {% if status == "ready" or status == "finished" %}
+    {% if status == "evaluate" or status == "finished" %}
         <input type="submit" value="Continue"/>
     {% endif %}
     
