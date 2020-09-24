@@ -93,6 +93,13 @@ def goal_saved(keeper_score):
         return False
 
 
+def penalty_goal(percentage_success):
+    if random.randint(1, 100) <= percentage_success:
+        return True
+    else:
+        return False
+
+
 def main(trigger: func.QueueMessage):
     '''
     The function has to use imported code libraries to write to the queue because otherwise writes are 
@@ -103,6 +110,8 @@ def main(trigger: func.QueueMessage):
     
     # The message coming in has to be just text for base 64 decoding, so expect a string of team names in fixture list order. 
     team_list = message.split(",")
+    # Remove the first element as this tells us whether we're playing normal or extra time or penalties
+    game_stage = team_list.pop(0)
     query_string = ""
     for team in team_list:
         query_string += "Name eq \'" + team + "\' or "
@@ -127,27 +136,55 @@ def main(trigger: func.QueueMessage):
     fixtures = create_fixtures(team_list)
     current_round = Round(fixtures, team_stats)
     matches = current_round.get_matches()
-    MATCH_LENGTH = 90
-    match_time = 0
-    while match_time <= MATCH_LENGTH:
+    if game_stage == "normal":
+        MATCH_LENGTH = 90
+        match_time = 1
+    elif game_stage == "extra":
+        MATCH_LENGTH = 120
+        match_time = 91
+    else:
+        match_time = 120
+
+    if game_stage == "normal" or game_stage == "extra":  
+        while match_time <= MATCH_LENGTH:
+            for match in matches:
+                for team in match:
+                    if goal_chance(team["goal_chance"]):
+                        # goal chance created. Check if saved.
+                        if goal_saved(team["keeping"]):
+                            pass
+                        else:
+                            # goal scored
+                            goal_queue.send_message(team["name"])
+
+            logging.info('writing timer to queue ' + str(match_time))
+            goal_queue.send_message(str(match_time))
+            # Check if the goalqueue is clear before continuing. This is to keep the matchengine in sync with the user form. This way they should see a smooth
+            # progression of the timer. Without this check matchengine tends to run fast and multiple second jumps are observed.
+            while goal_queue.get_queue_properties().approximate_message_count > 0:
+                time.sleep(0.05)            
+
+            match_time += 1
+    
+    elif game_stage == "penalties":
+        # each team has 5 penalty kicks
+        for penalty_number in range(5):
+            for match in matches:
+                for team in match:
+                    if penalty_goal(75):
+                        goal_queue.send_message(team["name"])
+        # add a message to inform game that penalties have completed
+        goal_queue.send_message("done")
+
+    elif game_stage == "suddendeath":
+        # sudden death penalties
         for match in matches:
             for team in match:
-                if goal_chance(team["goal_chance"]):
-                    # goal chance created. Check if saved.
-                    if goal_saved(team["keeping"]):
-                        pass
-                    else:
-                        # goal scored
-                        goal_queue.send_message(team["name"])
+                if penalty_goal(75):
+                    goal_queue.send_message(team["name"])
+        # add a message to inform game that a round of sudden death penalties have completed
+        goal_queue.send_message("done")
 
-        logging.info('writing timer to queue ' + str(match_time))
-        goal_queue.send_message(str(match_time))
-        # Check if the goalqueue is clear before continuing. This is to keep the matchengine in sync with the user form. This way they should see a smooth
-        # progression of the timer. Without this check matchengine tends to run fast and multiple second jumps are observed.
-        while goal_queue.get_queue_properties().approximate_message_count > 0:
-            time.sleep(0.05)            
-
-        match_time += 1
     logging.info('matchengine complete')
 
 

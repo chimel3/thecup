@@ -1,9 +1,19 @@
 {% extends "base.html" %}
 {% block content %}
-    <meta http-equiv="refresh" content="1">
-    <form action="{{ url_for('display_matches') }}" method="GET">
+    {% if status != "ready" and status != "finished" %}
+        <meta http-equiv="refresh" content="1">
+    {% endif %}
+    
+    {% set nextaction = destination %}
+    <form action="{{ url_for(nextaction) }}" method="GET">
     <p><h2>Round: {{roundnumber}}</h2></p>
-    <p><h3>Time: {{timer}}</h3></p>      
+    {% if matchmsg != "" %}
+        <div>
+            <strong>{{matchmsg}}</strong>
+        </div>
+    {% endif %}
+    <p><h3>Time: {{timer}}</h3></p>
+
     <table>
     <tbody>
     {% for i in teams %}
@@ -22,10 +32,25 @@
     {% endfor %}
     </tbody>
     </table>
+
     <br>
-    {% if roundover %}
+    {% if matchmsg == "Ready" %}
+        <div>Press continue to start matches.</div>
+    {% elif matchmsg == "Extra Time" %}
+        <div>Press continue to start extra time. Only those matches still in progress will be shown.</div>
+    {% elif matchmsg == "Penalties" %}
+        <div>There are still matches in progress after extra time. Press continue to start penalties. All teams will have 5 penalties each. Only those matches that are level will be displayed.</div>
+    {% elif matchmsg == "Sudden Death Penalties!" %}
+        <div>Some matches are still level. Press continue to start a round of sudden death penalties. Each team will take one penalty each. Only those matches that are level will be displayed.</div>    
+    {% elif matchmsg == "Round Complete" %}
+        <div>Matches are all complete. Press continue to start the next round.</div>    
+    {% endif %}
+    <br>
+
+    {% if status == "ready" or status == "finished" %}
         <input type="submit" value="Continue"/>
     {% endif %}
+    
     </form>
      
 {% endblock %}
